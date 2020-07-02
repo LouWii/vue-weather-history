@@ -11,6 +11,7 @@ const MUT_ADD_SEARCH_STATIONS_OPTIONS = 'addSearchStationsOptions'
 const MUT_ADD_STATION = 'addStation'
 const MUT_RESET_SEARCH_STATIONS_OPTIONS = 'resetSearchStationsOptions'
 const MUT_SAVE_API_KEY = 'saveApiKey'
+const MUT_SET_PRERIOD_TYPE = 'setPeriodType'
 const MUT_SHOW_ADD_STATION_PANE = 'triggerAddStationPane'
 
 let meteostatClient = null
@@ -18,6 +19,7 @@ let meteostatClient = null
 export default new Vuex.Store({
   state: {
     apiKey: null,
+    periodType: null,
     searchStationsOptions: [],
     stations: [],
     showAddStationPane: false,
@@ -49,6 +51,9 @@ export default new Vuex.Store({
         .catch(error => {
           console.log(error)
         })
+    },
+    setPeriodType({commit}, periodType) {
+      commit(MUT_SET_PRERIOD_TYPE, periodType)
     },
     triggerAddStationPane({commit}, show) {
       commit(MUT_SHOW_ADD_STATION_PANE, show)
@@ -87,6 +92,9 @@ export default new Vuex.Store({
       state.apiKey = apiKey
       localStorage.setItem(LOCAL_KEY_API_KEY, apiKey)
       meteostatClient = initMeteostatClient(apiKey)
+    },
+    [MUT_SET_PRERIOD_TYPE](state, periodType) {
+      state.periodType = periodType
     },
     [MUT_SHOW_ADD_STATION_PANE](state, show) {
       state.showAddStationPane = show

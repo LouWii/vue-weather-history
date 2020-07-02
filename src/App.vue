@@ -4,6 +4,7 @@
     <key-init v-if="!apiKey"/>
     <add-station/>
     <stations-list/>
+    <period-select/>
   </div>
 </template>
 
@@ -11,6 +12,7 @@
 import {mapState} from 'vuex'
 import AddStation from './components/AddStation'
 import KeyInit from './components/KeyInit.vue'
+import PeriodSelect from './components/PeriodSelect'
 import StationsList from './components/StationsList'
 
 export default {
@@ -18,6 +20,7 @@ export default {
   components: {
     AddStation,
     KeyInit,
+    PeriodSelect,
     StationsList,
   },
   computed: {
