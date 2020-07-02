@@ -1,18 +1,31 @@
 <template>
   <div id="app">
-    <img alt="Vue logo" src="./assets/logo.png">
-    <HelloWorld msg="Welcome to Your Vue.js App"/>
+    <h1>Vue Weather History</h1>
+    <key-init v-if="!apiKey"/>
+    <add-station/>
+    <stations-list/>
   </div>
 </template>
 
 <script>
-import HelloWorld from './components/HelloWorld.vue'
+import {mapState} from 'vuex'
+import AddStation from './components/AddStation'
+import KeyInit from './components/KeyInit.vue'
+import StationsList from './components/StationsList'
 
 export default {
   name: 'App',
   components: {
-    HelloWorld
-  }
+    AddStation,
+    KeyInit,
+    StationsList,
+  },
+  computed: {
+    ...mapState(['apiKey']),
+  },
+  beforeCreate: function() {
+    this.$store.commit('initializeFromLocalStorage')
+  },
 }
 </script>
 
