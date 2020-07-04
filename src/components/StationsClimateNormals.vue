@@ -4,18 +4,20 @@
     <loading/>
     <div v-if="!isFetchingData" class="data-display-container">
       <data-tops/>
+      <data-charts/>
     </div>
   </div>
 </template>
 
 <script>
 import {mapActions, mapGetters} from 'vuex'
+import DataCharts from './Charts/DataCharts'
 import DataTops from './DataTops'
 import Loading from './Loading'
 
 export default {
   name: 'StationsClimateNormals',
-  components: {DataTops, Loading},
+  components: {DataCharts, DataTops, Loading},
   beforeMount: function() {
     this.fetchAllClimateNormals()
   },

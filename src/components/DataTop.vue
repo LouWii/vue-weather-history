@@ -6,7 +6,15 @@
     <div class="top-container">
       <ul>
         <li v-for="top in topData" :key="top.stationId">
-          <station-name :station="getStation(top.stationId)" />: {{ top.value }} {{ units }}
+          <station-name :station="getStation(top.stationId)" />:
+          <span v-if="top.isMissing">
+            ~ <span v-tooltip="'Data Missing'">?</span>
+          </span>
+          <span v-else>
+            <span v-if="!top.isComplete">~</span>
+            {{ top.value }} {{ units }}
+            <span v-if="!top.isComplete" v-tooltip="'Incomplete Data'">?</span>
+          </span>
         </li>
       </ul>
     </div>
@@ -29,6 +37,10 @@ export default {
       required: true,
       type: String,
     },
+    topType: {
+      type: String,
+      default: 'total',
+    },
     units: {
       required: true,
       type: String,
@@ -43,19 +55,36 @@ export default {
     const stationsData = []
     // Gather all data
     this.stations.forEach(function(station) {
-      console.log(station.id)
       const stationData = this.getStationClimateNormals(station.id)
+      let defaultValue = 0
+      if (this.topType == 'min') {
+        defaultValue = Number.MAX_SAFE_INTEGER
+      } else if (this.topType == 'max') {
+        defaultValue = Number.NEGATIVE_INFINITY
+      }
       const stationTopValue = {
         stationId: station.id,
-        isComplete: true,
-        isSet: true,
-        value: 0,
+        isComplete: true, // Got all values
+        isMissing: true, // Got no values at all for this specific measurement
+        isSet: true, // Got no data at all
+        value: defaultValue,
       }
-      console.log(stationTopValue)
+
       if (stationData) {
         stationData.data.forEach(function(d) {
           if (null !== d[this.dataId]) {
-            stationTopValue.value += d[this.dataId]
+            stationTopValue.isMissing = false
+            if (this.topType === 'total') {
+              stationTopValue.value += d[this.dataId]
+            } else if (this.topType === 'min') {
+              if (stationTopValue.value > d[this.dataId]) {
+                stationTopValue.value =  d[this.dataId]
+              }
+            } else if (this.topType === 'max') {
+              if (stationTopValue.value < d[this.dataId]) {
+                stationTopValue.value =  d[this.dataId]
+              }
+            }
           } else {
             stationTopValue.isComplete = false
           }
@@ -67,8 +96,11 @@ export default {
       stationsData.push(stationTopValue)
     }.bind(this))
 
-    console.log(stationsData)
-    this.topData = stationsData.sort((a, b) => a.value < b.value)
+    if (this.topType == 'min') {
+      this.topData = stationsData.sort((a, b) => a.value > b.value)
+    } else {
+      this.topData = stationsData.sort((a, b) => a.value < b.value)
+    }
   },
   computed: {
     ...mapState(['stations', 'stationsClimateNormals']),
