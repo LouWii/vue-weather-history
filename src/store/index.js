@@ -9,6 +9,9 @@ const LOCAL_KEY_STATIONS = 'weather-app-stations'
 
 const MUT_ADD_SEARCH_STATIONS_OPTIONS = 'addSearchStationsOptions'
 const MUT_ADD_STATION = 'addStation'
+const MUT_ADD_STATION_CLIMATE_NORMALS = 'addStationClimateNormals'
+const MUT_DECREASE_DATA_FETCHING_COUNT = 'decreaseDataFetchingCount'
+const MUT_INCREASE_DATA_FETCHING_COUNT = 'increaseDataFetchingCount'
 const MUT_RESET_SEARCH_STATIONS_OPTIONS = 'resetSearchStationsOptions'
 const MUT_SAVE_API_KEY = 'saveApiKey'
 const MUT_SET_PRERIOD_TYPE = 'setPeriodType'
@@ -19,16 +22,55 @@ let meteostatClient = null
 export default new Vuex.Store({
   state: {
     apiKey: null,
+    dataFetchingCount: 0,
     periodType: null,
     searchStationsOptions: [],
-    stations: [],
     showAddStationPane: false,
+    stations: [],
+    stationsClimateNormals: [],
+  },
+  getters: {
+    getStation: state => stationId => state.stations.find(s => s.id === stationId),
+    getStationClimateNormals: state => stationId => state.stationsClimateNormals.find(scn => scn.stationId === stationId),
+    isFetchingData: state => state.dataFetchingCount !== 0
   },
   actions: {
     addStation({commit, state}, station) {
       const stationIdx = state.stations.find(s => s.id === station.id)
       if ('undefined' === typeof stationIdx) {
         commit(MUT_ADD_STATION, station)
+      }
+    },
+    fetchAllClimateNormals({dispatch, state}) {
+      let delay = 0
+      state.stations.forEach(s => {
+        dispatch('fetchStationClimateNormals', {
+          stationId: s.id,
+          delay})
+        delay += 600;
+      })
+    },
+    fetchStationClimateNormals({commit, state}, {stationId, delay}) {
+      // Only fetch if not not present in state
+      const stationClimateNormalsIdx = state.stationsClimateNormals.find(e => e.stationId === stationId)
+      if ('undefined' === typeof stationClimateNormalsIdx) {
+        commit(MUT_INCREASE_DATA_FETCHING_COUNT)
+        setTimeout(function() {
+          meteostatClient
+            .get(meteostatUrls.climateNormals(), {params: {station: stationId}})
+            .then(response => {
+              if (response.data.meta) {
+                response.data.stationId = stationId
+                commit(MUT_ADD_STATION_CLIMATE_NORMALS, response.data)
+              }
+            })
+            .catch(error => {
+              console.log(error)
+            })
+            .finally(() => {
+              commit(MUT_DECREASE_DATA_FETCHING_COUNT)
+            })
+        }, delay)
       }
     },
     resetSearchStationsOptions({commit}) {
@@ -84,6 +126,15 @@ export default new Vuex.Store({
     [MUT_ADD_STATION](state, station) {
       state.stations.push(station)
       localStorage.setItem(LOCAL_KEY_STATIONS, JSON.stringify(state.stations))
+    },
+    [MUT_ADD_STATION_CLIMATE_NORMALS](state, payload) {
+      state.stationsClimateNormals.push(payload)
+    },
+    [MUT_DECREASE_DATA_FETCHING_COUNT](state) {
+      state.dataFetchingCount = state.dataFetchingCount - 1
+    },
+    [MUT_INCREASE_DATA_FETCHING_COUNT](state) {
+      state.dataFetchingCount = state.dataFetchingCount + 1
     },
     [MUT_RESET_SEARCH_STATIONS_OPTIONS](state) {
       state.searchStationsOptions = []

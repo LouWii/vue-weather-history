@@ -5,6 +5,7 @@
     <add-station/>
     <stations-list/>
     <period-select/>
+    <stations-climate-normals v-if="showStationsClimateNormals"/>
   </div>
 </template>
 
@@ -13,6 +14,7 @@ import {mapState} from 'vuex'
 import AddStation from './components/AddStation'
 import KeyInit from './components/KeyInit.vue'
 import PeriodSelect from './components/PeriodSelect'
+import StationsClimateNormals from './components/StationsClimateNormals'
 import StationsList from './components/StationsList'
 
 export default {
@@ -21,10 +23,14 @@ export default {
     AddStation,
     KeyInit,
     PeriodSelect,
+    StationsClimateNormals,
     StationsList,
   },
   computed: {
-    ...mapState(['apiKey']),
+    ...mapState(['apiKey', 'periodType']),
+    showStationsClimateNormals: function() {
+      return 'climate-normals' === this.periodType
+    },
   },
   beforeCreate: function() {
     this.$store.commit('initializeFromLocalStorage')
