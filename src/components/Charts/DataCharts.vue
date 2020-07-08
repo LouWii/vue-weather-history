@@ -1,6 +1,7 @@
 <template>
   <div class="data-charts">
     <data-chart title="Precipitations" dataId="prcp"/>
+    <data-chart title="Sunshine Time" dataId="tsun"/>
   </div>
 </template>
 

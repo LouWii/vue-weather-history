@@ -4,16 +4,35 @@
       <h3>{{ title }}</h3>
     </div>
     <div class="chart-container">
-      <trend-chart :datasets="dataSets" :grid="grid" :labels="labels" :min="min"/>
+      <trend-chart
+        :datasets="dataSets"
+        :grid="grid"
+        :labels="labels"
+        :min="min"
+        :interactive="true"
+        ref="chart"
+        @mouse-move="onMouseOver"/>
+      <div :class="['chart-tooltip', {'is-active': tooltipData}]" ref="tooltip">
+        <table class="stats" v-if="tooltipData">
+          <tr class="stat" v-for="(item, index) in tooltipData.data" :key="index">
+            <td class="title"><strong><station-name :station="getStationByIndex(index)"/>:</strong></td>
+            <td class="value">{{item}} {{unit}}</td>
+          </tr>
+        </table>
+      </div>
     </div>
   </div>
 </template>
 
 <script>
 import {mapGetters, mapState} from 'vuex'
+import {createPopper} from '@popperjs/core'
+import {getClimateNormalsUnitsFromDataType} from '../../extra/meteostat'
+import StationName from '../StationName'
 
 export default {
   name: 'DataChart',
+  components: {StationName},
   props: {
     dataId: {
       required: true,
@@ -36,6 +55,11 @@ export default {
         yLabels: 5
       },
       min: 0,
+      tooltipData: null,
+      tooltip: null,
+      elChart: null,
+      elChartRef: null,
+      elTooltip: null,
     }
   },
   beforeMount() {
@@ -71,10 +95,40 @@ export default {
 
     this.dataSets = tempDataSets
   },
+  mounted() {
+    this.elChart = this.$refs.chart.$el
+    this.elChartRef = this.elChart.querySelector('.active-line')
+    this.elTooltip = this.$refs.tooltip
+  },
   computed: {
     ...mapState(['stations', 'stationsClimateNormals']),
-    ...mapGetters(['getStation', 'getStationClimateNormals']),
+    ...mapGetters(['getStation', 'getStationByIndex', 'getStationClimateNormals']),
+    unit: function() {
+      return getClimateNormalsUnitsFromDataType(this.dataId)
+    }
   },
+  methods: {
+    onMouseOver(params) {
+      this.tooltipData = params || null
+      createPopper(this.elChartRef, this.elTooltip, {
+        placement: 'right',
+        modifiers: [
+          {
+            name: 'preventOverflow',
+            options: {
+              boundary: this.elChart
+            },
+          },
+          {
+            name: 'offset',
+            options: {
+              offset: [0, 20],
+            },
+          },
+        ]
+      })
+    },
+  }
 }
 </script>
 
@@ -112,6 +166,54 @@ export default {
     .point {
       fill: #7fdfd4;
       stroke: #7fdfd4;
+    }
+  }
+
+  .chart-tooltip {
+    &:not(.is-active) {
+      display: none;
+    }
+
+    padding: 10px;
+    background: #fff;
+    box-shadow: 0 0 5px rgba(0, 0, 0, 0.2);
+    pointer-events: none;
+
+    .stats {
+      width: 100%;
+      .title {
+        text-align: right;
+      }
+      .value {
+        text-align: left;
+      }
+    }
+
+    &-data {
+      display: flex;
+      &-item {
+        display: flex;
+        align-items: center;
+        &:not(:first-child) {
+          margin-left: 20px;
+        }
+        &:before {
+          content: "";
+          display: block;
+          width: 15px;
+          height: 15px;
+          margin-right: 5px;
+        }
+        &--1:before {
+          background: #fbac91;
+        }
+        &--2:before {
+          background: #fbe1b6;
+        }
+        &--3:before {
+          background: #7fdfd4;
+        }
+      }
     }
   }
 }

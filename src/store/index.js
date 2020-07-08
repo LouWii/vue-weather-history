@@ -31,6 +31,7 @@ export default new Vuex.Store({
   },
   getters: {
     getStation: state => stationId => state.stations.find(s => s.id === stationId),
+    getStationByIndex: state => index => state.stations[index] ? state.stations[index] : null,
     getStationClimateNormals: state => stationId => state.stationsClimateNormals.find(scn => scn.stationId === stationId),
     isFetchingData: state => state.dataFetchingCount !== 0
   },
