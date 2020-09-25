@@ -48,6 +48,72 @@ export default {
   margin-top: 60px;
 }
 
+$blue: #7fdfd4;
+$orange: #fbac91;
+$yellow: #fbe1b6;
+$purple: #bc7fdf;
+
+.color-blue {
+  color:$blue;
+}
+.bg-color-blue {
+  background: $blue;
+}
+.curve-blue {
+  .stroke {
+    stroke: $blue;
+  }
+  .point {
+    fill: $blue;
+    stroke: $blue;
+  }
+}
+.color-yellow {
+  color: $yellow;
+}
+.bg-color-yellow {
+  background: $yellow;
+}
+.curve-yellow {
+  .stroke {
+    stroke: $yellow;
+  }
+  .point {
+    fill: $yellow;
+    stroke: $yellow;
+  }
+}
+.color-orange {
+  color: $orange;
+}
+.bg-color-orange {
+  background: $orange;
+}
+.curve-orange {
+  .stroke {
+    stroke: $orange;
+  }
+  .point {
+    fill: $orange;
+    stroke: $orange;
+  }
+}
+.color-purple {
+  color: $purple;
+}
+.bg-color-purple {
+  background: $purple;
+}
+.curve-purple {
+  .stroke {
+    stroke: $purple;
+  }
+  .point {
+    fill: $purple;
+    stroke: $purple;
+  }
+}
+
 // Tooltip Styling
 .tooltip {
   display: block !important;

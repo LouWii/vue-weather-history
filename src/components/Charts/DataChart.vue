@@ -67,9 +67,11 @@ export default {
     // Gather all data
     this.stations.forEach(function(station, idx) {
       const stationData = this.getStationClimateNormals(station.id)
+      const colorClass = 'curve-' + this.getStationColor(station.id)
+      const stationClass = 'station-' + station.id
       const dataSet = {
         data: [],
-        className: 'curve' + idx,
+        className: `${colorClass} ${stationClass} curve${idx}`,
         showPoints: true,
         smooth: false,
         fill: false,
@@ -101,8 +103,8 @@ export default {
     this.elTooltip = this.$refs.tooltip
   },
   computed: {
-    ...mapState(['stations', 'stationsClimateNormals']),
-    ...mapGetters(['getStation', 'getStationByIndex', 'getStationClimateNormals']),
+    ...mapState(['focusedStation', 'stations', 'stationsClimateNormals']),
+    ...mapGetters(['getStation', 'getStationByIndex', 'getStationClimateNormals', 'getStationColor']),
     unit: function() {
       return getClimateNormalsUnitsFromDataType(this.dataId)
     }
@@ -128,6 +130,13 @@ export default {
         ]
       })
     },
+  },
+  watch: {
+    focusedStation() {
+      console.log(this.elChart)
+      this.elChart.querySelectorAll('.curve').forEach(el => el.classList.remove('focused'))
+      this.elChart.querySelector('.curve.station-' + this.focusedStation).classList.add('focused')
+    }
   }
 }
 </script>
@@ -138,34 +147,15 @@ export default {
     height: 280px;
   }
 
-  .curve1 {
+  .curve {
     .stroke {
-      stroke: #fbac91;
       stroke-width: 2;
     }
-    .point {
-      fill: #fbac91;
-      stroke: #fbac91;
-    }
-  }
-  .curve2 {
-    .stroke {
-      stroke: #fbe1b6;
-      stroke-width: 2;
-    }
-    .point {
-      fill: #fbe1b6;
-      stroke: #fbe1b6;
-    }
-  }
-  .curve3 {
-    .stroke {
-      stroke: #7fdfd4;
-      stroke-width: 2;
-    }
-    .point {
-      fill: #7fdfd4;
-      stroke: #7fdfd4;
+
+    &.focused {
+      .stroke {
+        stroke-width: 4;
+      }
     }
   }
 

@@ -1,6 +1,7 @@
 import Vue from 'vue'
 import Vuex from 'vuex'
 import {meteostatUrls, initMeteostatClient} from '../extra/meteostat'
+import {getStationColor} from '../extra/stationColor'
 
 Vue.use(Vuex)
 
@@ -14,6 +15,7 @@ const MUT_DECREASE_DATA_FETCHING_COUNT = 'decreaseDataFetchingCount'
 const MUT_INCREASE_DATA_FETCHING_COUNT = 'increaseDataFetchingCount'
 const MUT_RESET_SEARCH_STATIONS_OPTIONS = 'resetSearchStationsOptions'
 const MUT_SAVE_API_KEY = 'saveApiKey'
+const MUT_SET_FOCUSED_STATION = 'setFocusedStation'
 const MUT_SET_PRERIOD_TYPE = 'setPeriodType'
 const MUT_SHOW_ADD_STATION_PANE = 'triggerAddStationPane'
 
@@ -23,6 +25,7 @@ export default new Vuex.Store({
   state: {
     apiKey: null,
     dataFetchingCount: 0,
+    focusedStation: null,
     periodType: null,
     searchStationsOptions: [],
     showAddStationPane: false,
@@ -33,7 +36,13 @@ export default new Vuex.Store({
     getStation: state => stationId => state.stations.find(s => s.id === stationId),
     getStationByIndex: state => index => state.stations[index] ? state.stations[index] : null,
     getStationClimateNormals: state => stationId => state.stationsClimateNormals.find(scn => scn.stationId === stationId),
-    isFetchingData: state => state.dataFetchingCount !== 0
+    getStationColor: (state, getters) => stationId => {
+      const stationIndex = getters.getStationIndex(stationId)
+      return getStationColor(stationIndex)
+    },
+    getStationIndex: state => stationId => state.stations.findIndex(s => s.id === stationId),
+    isFetchingData: state => state.dataFetchingCount !== 0,
+    isFocusedStation: state => stationId => stationId === state.focusedStation,
   },
   actions: {
     addStation({commit, state}, station) {
@@ -95,6 +104,9 @@ export default new Vuex.Store({
           console.log(error)
         })
     },
+    setFocusedStation({commit}, stationId) {
+      commit(MUT_SET_FOCUSED_STATION, stationId)
+    },
     setPeriodType({commit}, periodType) {
       commit(MUT_SET_PRERIOD_TYPE, periodType)
     },
@@ -144,6 +156,10 @@ export default new Vuex.Store({
       state.apiKey = apiKey
       localStorage.setItem(LOCAL_KEY_API_KEY, apiKey)
       meteostatClient = initMeteostatClient(apiKey)
+    },
+    [MUT_SET_FOCUSED_STATION](state, stationId) {
+      state.focusedStation = stationId
+      // TODO: if used to unset the focused station (null value), should we check that the value hasn't been changed? Like if someone left and entered another station, we could end up with this function called in not the right order
     },
     [MUT_SET_PRERIOD_TYPE](state, periodType) {
       state.periodType = periodType

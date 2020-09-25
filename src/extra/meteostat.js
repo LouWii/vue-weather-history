@@ -1,7 +1,7 @@
 import Axios from 'axios'
 
-// const meteostatApiUrl = 'https://api.meteostat.net';
-const meteostatApiUrl = 'https://weather.louwii.com';
+const meteostatApiUrl = 'https://api.meteostat.net';
+// const meteostatApiUrl = 'https://weather.louwii.com';
 
 const climateNormalsUnits = {
   tavg: '°C',

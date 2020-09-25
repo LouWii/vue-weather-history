@@ -2,6 +2,8 @@
   <div class="data-charts">
     <data-chart title="Precipitations" dataId="prcp"/>
     <data-chart title="Sunshine Time" dataId="tsun"/>
+    <data-chart title="Max Temp" dataId="tmax"/>
+    <data-chart title="Min Temp" dataId="tmin"/>
   </div>
 </template>
 
