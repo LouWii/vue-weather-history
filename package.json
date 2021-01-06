@@ -9,7 +9,7 @@
   },
   "dependencies": {
     "@popperjs/core": "^2.4.4",
-    "axios": "^0.19.2",
+    "axios": "^0.21.1",
     "core-js": "^3.6.5",
     "iso-country": "^1.0.7",
     "v-tooltip": "^2.0.3",
